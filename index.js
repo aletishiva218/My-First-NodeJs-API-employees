@@ -1,6 +1,5 @@
 import bodyParser from "body-parser";
 import express from "express";
-import axios from "axios";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
