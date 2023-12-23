@@ -264,7 +264,7 @@ app.post("/employee",postEmployeeMiddleware,(req,res)=>{
         "name":req.body.name,
         "position":req.body.position,
         "department":req.body.department,
-        "salary":req.body.salary
+        "salary":Number.parseInt(req.body.salary)
     }
     employees.push(employeeData)
     res.send(employees[employees.length-1])
