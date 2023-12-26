@@ -1,153 +1,298 @@
-import axios from "axios";
-import express from "express";
 import bodyParser from "body-parser";
-import morgan from "morgan";
+import express from "express";
 import helmet from "helmet";
+import morgan from "morgan";
 import dotenv from "dotenv";
 dotenv.config();
+const employees= [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "position": "Software Engineer",
+      "department": "Engineering",
+      "salary": 80000
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "position": "Marketing Specialist",
+      "department": "Marketing",
+      "salary": 60000
+    },
+    {
+      "id": 3,
+      "name": "Mike Johnson",
+      "position": "Financial Analyst",
+      "department": "Finance",
+      "salary": 70000
+    },
+    {
+      "id": 4,
+      "name": "Emily Davis",
+      "position": "Human Resources Manager",
+      "department": "Human Resources",
+      "salary": 75000
+    },
+    {
+      "id": 5,
+      "name": "Alex Rodriguez",
+      "position": "Sales Representative",
+      "department": "Sales",
+      "salary": 65000
+    },
+    {
+      "id": 6,
+      "name": "Sara Brown",
+      "position": "Customer Support Specialist",
+      "department": "Customer Support",
+      "salary": 55000
+    },
+    {
+      "id": 7,
+      "name": "Chris Taylor",
+      "position": "Product Manager",
+      "department": "Product Management",
+      "salary": 90000
+    },
+    {
+      "id": 8,
+      "name": "Amanda White",
+      "position": "Quality Assurance Engineer",
+      "department": "Engineering",
+      "salary": 82000
+    },
+    {
+      "id": 9,
+      "name": "Mark Johnson",
+      "position": "Sales Manager",
+      "department": "Sales",
+      "salary": 75000
+    },
+    {
+      "id": 10,
+      "name": "Olivia Davis",
+      "position": "Customer Relations Specialist",
+      "department": "Customer Support",
+      "salary": 55000
+    },
+    {
+      "id": 11,
+      "name": "Brian Miller",
+      "position": "Operations Analyst",
+      "department": "Operations",
+      "salary": 72000
+    },
+    {
+      "id": 12,
+      "name": "Jessica Garcia",
+      "position": "Marketing Manager",
+      "department": "Marketing",
+      "salary": 90000
+    },
+    {
+      "id": 13,
+      "name": "Daniel Martinez",
+      "position": "IT Support Specialist",
+      "department": "IT",
+      "salary": 68000
+    },
+    {
+      "id": 14,
+      "name": "Sophia Johnson",
+      "position": "Product Designer",
+      "department": "Product Management",
+      "salary": 78000
+    },
+    {
+      "id": 15,
+      "name": "William Brown",
+      "position": "Financial Planner",
+      "department": "Finance",
+      "salary": 70000
+    },
+    {
+      "id": 16,
+      "name": "Ella Taylor",
+      "position": "Human Resources Specialist",
+      "department": "Human Resources",
+      "salary": 75000
+    },
+    {
+      "id": 17,
+      "name": "James Anderson",
+      "position": "Customer Success Manager",
+      "department": "Customer Support",
+      "salary": 82000
+    },
+    {
+      "id": 18,
+      "name": "Grace Smith",
+      "position": "Sales Associate",
+      "department": "Sales",
+      "salary": 65000
+    },
+    {
+      "id": 19,
+      "name": "Benjamin Davis",
+      "position": "Software Developer",
+      "department": "Engineering",
+      "salary": 80000
+    },
+    {
+      "id": 20,
+      "name": "Ava Rodriguez",
+      "position": "Product Owner",
+      "department": "Product Management",
+      "salary": 95000
+    }
+  ];
+
+let response; // To send response
 const app = express();
-app.use(bodyParser.urlencoded({extended:true}))
-app.use(morgan("combined"))
-app.use(helmet())
-app.set("view engine","ejs")
-let response;
+
 const PORT = process.env.PORT;
-const jsonData = [
-    {
-        id:1,
-        name:"Shiva Aleti",
-        age:23,
-        type:"savings"
-    },
-    {
-        id:2,
-        name:"Om Jamnekar",
-        age:54,
-        type:"current"
-    },
-    {
-        id:3,
-        name:"Sharukhan",
-        age:76,
-        type:"savings"
-    },
-    {
-        id:4,
-        name:"Pranay Kapde",
-        age:86,
-        type:"current"
-    }
-]
-app.get("/employees",(req,res)=>{
+
+app.use(helmet()); // To protecting Data
+app.use(morgan("combined")); // For connecting API's public
+app.use(bodyParser.urlencoded({extended:true})) // To get data coming in
+
+let filteredEmployees;
+let employeeId;
+let employeeData;
+let employeeIndex;
+const filterMiddleware = (req,res,next) => {
     try{
-        if(!jsonData.length)
-        throw {"error":"Dont have data"}
-        res.send(jsonData)
-    }catch(err){
-        res.send(err)
+        if(req.query.department && req.query.position && req.query.salary)
+        filteredEmployees = employees.filter((employee) => (employee.department==req.query.department && employee.position==req.query.position && employee.salary==req.query.salary))
+        else if(req.query.department && req.query.position)
+        filteredEmployees = employees.filter((employee) => (employee.department==req.query.department && employee.position==req.query.position))
+        else if(req.query.position && req.query.salary)
+        filteredEmployees = employees.filter((employee) => (employee.position==req.query.position && employee.salary==req.query.salary))
+        else if(req.query.department && req.query.salary)
+        filteredEmployees = employees.filter((employee) => (employee.department==req.query.department && employee.salary==req.query.salary))
+        else if(req.query.department)
+        filteredEmployees = employees.filter((employee) => (employee.department==req.query.department))
+        else if(req.query.position)
+        filteredEmployees = employees.filter((employee) => (employee.position==req.query.position))
+        else if(req.query.salary)
+        filteredEmployees = employees.filter((employee) => (employee.salary==req.query.salary))
+        else throw {"error":"Specify filters like department,salary,etc."};
+        if(filteredEmployees.length==0)
+        throw {"error":"Don't have any data"};
+        next();
+    }catch(error){
+        res.send(error)
     }
-})
-app.get("/random",  (req,res)=>{
+}
+
+let getEmployeeMiddleware = (req,res,next) => {
     try{
-        response = jsonData[Math.floor(Math.random()*jsonData.length)];
-        if(!response)
-        throw {"error":"Dont have any data"}
-        res.send(response)
-    }catch(err){
-        res.send(err)
+        employeeId =req.params.id;
+        if(!Number.isInteger(Number.parseInt(employeeId)))
+        throw {"error":"Specify Id only"};
+        employeeData = employees.find((employee)=> employee.id==employeeId)
+        if(!employeeData)
+        throw {"error":`Data not exists with given id ${employeeId}`};
+        next();
+    }catch(error){
+        res.send(error)
     }
+}
+
+let postEmployeeMiddleware = (req,res,next) => {
+   try{
+    if(!(req.body.name && req.body.position && req.body.department && req.body.salary))
+    throw {"error":"Incomplete details"};
+    if(!Number.isInteger(Number.parseInt(req.body.salary)))
+    throw {"error":"Salary cannot be in the form of string"};
+    next();
+   }catch(error){
+    res.send(error)
+   }
+}
+
+let putEmployeeMiddleware = (req,res,next) => {
+    try{
+        employeeId =req.params.id;
+        if(!Number.isInteger(Number.parseInt(employeeId)))
+        throw {"error":"Specify Id only"};
+        employeeIndex = employees.findIndex((employee)=> employee.id==employeeId)
+        if(employeeIndex==-1)
+        throw {"error":"Data not found"};
+        if(req.body.salary && !Number.isInteger(Number.parseInt(req.body.salary)))
+        throw {"error":"Salary cannot be in the form of string"};
+        employeeData = employees[employeeIndex];
+        next()
+    }catch(error){
+        res.send(error)
+    }
+}
+
+let deleteEmployeeMiddleware = (req,res,next) => {
+    try{
+        employeeId =req.params.id;
+        if(!Number.isInteger(Number.parseInt(employeeId)))
+        throw {"error":"Specify Id only"};
+        employeeIndex = employees.findIndex((employee)=> employee.id==employeeId)
+        if(employeeIndex==-1)
+        throw {"error":`Data not exists with given id ${employeeId}. hence data cannot be deleted`};
+        next();
+    }catch(error){
+        res.send(error)
+    }
+}
+
+app.get("/",(req,res)=>{ 
+    res.send(employees)
 })
 
-app.get("/employee/:id",(req,res)=>{
-    try{
-        if(Number.isNaN(Number.parseInt(req.params.id)))
-        throw {"error":"Please provide employee ID only"}
-        response = jsonData.find((data)=>data.id==req.params.id);
-        response = !response?{"error":"No data exists on that id"}:response;
-        res.send(response)
-    }catch(err){
-        res.send(err)
-    }
+app.get("/random",(req,res)=>{
+    employeeData = employees[Math.floor(Math.random()*employees.length)];
+    res.send(employeeData)
 })
 
-app.get("/employees/filter",(req,res)=>{  
-    try{
-        if(!req.query.type)
-        throw {"error":"Please specify type"}
-        response = jsonData.filter((data) => data.type == req.query.type);
-        if(!response.length)
-        throw {"error":"Don't have any data"}
-        res.send(response)
-    }catch(err){
-        res.send(err)
-    }
+app.get("/filter",filterMiddleware,(req,res)=>{
+    res.send(filteredEmployees)
 })
 
-app.post("/employees",(req,res)=>{
-  try{
-    if(!(req.body.name && req.body.age && req.body.type))
-    throw {"error":"Please provide complete details"}
-    let newEmployee = {
-        id:jsonData.length+1,
-        name:req.body.name,
-        age:req.body.age,
-        type:req.body.type
+app.get("/:id",getEmployeeMiddleware,(req,res)=>{
+    res.send(employeeData)
+})
+app.post("/employee",postEmployeeMiddleware,(req,res)=>{
+    employeeData = {
+        "id":employees.length + 1,
+        "name":req.body.name,
+        "position":req.body.position,
+        "department":req.body.department,
+        "salary":Number.parseInt(req.body.salary)
     }
-    jsonData.push(newEmployee)
-    res.send(jsonData.slice(-1))
-  }catch(err){
-    res.send(err)
-  }
+    employees.push(employeeData)
+    res.send(employees[employees.length-1])
+})
+app.put("/employee/:id",putEmployeeMiddleware,(req,res)=>{
+    employeeData.name = req.body.name || employeeData.name;
+    employeeData.position = req.body.position || employeeData.position;
+    employeeData.department = req.body.department || employeeData.department;
+    employeeData.salary = Number.parseInt(req.body.salary) || employeeData.salary;
+
+    employees[employeeIndex] = employeeData;
+    res.send(employees[employeeIndex])
 })
 
-app.put("/employees/:id",(req,res)=>{
-    try{
-        if(Number.isNaN(Number.parseInt(req.params.id)))
-        throw {"error":"Please provide employee ID only"}
-        let objIndex = jsonData.findIndex(data => data.id == req.params.id)
-        if(objIndex == -1)
-        throw {"error":"Data not exists with given employee ID"};
-   jsonData[objIndex].name = req.body.name || jsonData[objIndex].name;
-    jsonData[objIndex].age = req.body.age || jsonData[objIndex].age;
-    jsonData[objIndex].type = req.body.type || jsonData[objIndex].type;
-    res.send(jsonData[objIndex])
-    }catch(err){
-        res.send(err)
-    }
+app.patch("/employee/:id",putEmployeeMiddleware,(req,res)=>{
+    employeeData.name = req.body.name || employeeData.name;
+    employeeData.position = req.body.position || employeeData.position;
+    employeeData.department = req.body.department || employeeData.department;
+    employeeData.salary = Number.parseInt(req.body.salary) || employeeData.salary;
+
+    employees[employeeIndex] = employeeData;
+    res.send(employees[employeeIndex])
 })
 
-app.patch("/employees/:id",(req,res)=>{
-    try{
-        if(Number.isNaN(Number.parseInt(req.params.id)))
-        throw {"error":"Please provide employee ID only"}
-        let objIndex = jsonData.findIndex(data => data.id == req.params.id)
-        if(objIndex == -1)
-        throw {"error":"Data not exists with given employee ID"};
-   jsonData[objIndex].name = req.body.name || jsonData[objIndex].name;
-    jsonData[objIndex].age = req.body.age || jsonData[objIndex].age;
-    jsonData[objIndex].type = req.body.type || jsonData[objIndex].type;
-    res.send(jsonData[objIndex])
-    }catch(err){
-        res.send(err)
-    }
+app.delete("/employee/:id",deleteEmployeeMiddleware,(req,res)=>{
+    employeeData = employees.splice(employeeIndex,1)
+    res.send(employeeData)
 })
-app.delete("/employees/:id",(req,res)=>{
-    try{
-        if(Number.isNaN(Number.parseInt(req.params.id)))
-        throw {"error":"Please provide employee ID only"}
-        let obj = jsonData.find((data)=> data.id == req.params.id)
-        if(!obj)
-        throw {"error":"Data not exists with given employee ID"};
-            let i = jsonData.length;
-        while(i--){
-            if(jsonData[i] && jsonData[i].id==req.params.id)
-            jsonData.splice(i,1)
-        }
-        res.send(jsonData) 
-    }catch(err){
-        res.send(err)
-    }
-})
-app.listen(PORT,()=>{
-    console.log("Server is running at ",PORT)
+app.listen(PORT,(req,res)=>{
+    console.log(`Server is running on port ${PORT}`)
 })
