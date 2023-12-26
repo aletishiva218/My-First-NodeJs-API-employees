@@ -1,6 +1,5 @@
 {
     "dependencies": {
-<<<<<<< HEAD
         "axios": "^1.6.2",
         "body-parser": "^1.20.2",
         "dotenv": "^16.3.1",
@@ -9,34 +8,19 @@
         "helmet": "^7.1.0",
         "init": "^0.1.2",
         "morgan": "^1.10.0"
-=======
-      "axios": "^1.6.2",
-      "body-parser": "^1.20.2",
-      "dotenv": "^16.3.1",
-      "ejs": "^3.1.9",
-      "express": "^4.18.2",
-      "helmet": "^7.1.0",
-      "morgan": "^1.10.0"
->>>>>>> c5af397ad7383bb79dca0c0e5a54c23bafd55471
+      
     },
     "type": "module",
     "name": "all",
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-<<<<<<< HEAD
+
         "test": "echo \"Error: no test specified\" && exit 1"
-=======
-      "test": "echo \"Error: no test specified\" && exit 1"
->>>>>>> c5af397ad7383bb79dca0c0e5a54c23bafd55471
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "description": ""
-<<<<<<< HEAD
-}
-=======
   }
   
->>>>>>> c5af397ad7383bb79dca0c0e5a54c23bafd55471
